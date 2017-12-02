@@ -1,0 +1,12 @@
+{
+  "sockets": {
+    "url": "http://localhost:8080",
+    "port": 8080
+  },
+  "logs": {
+    "accessFilename": "access.log",
+    "errorFilename": "errors.log",
+    "databaseFilename": "db.log",
+    "consoleFilename": "console.log"
+  }
+}

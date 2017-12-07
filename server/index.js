@@ -3,10 +3,13 @@ const io = require('socket.io');
 const express = require('express');
 const path = require('path');
 const { Server } = require('http');
+const program = require('commander');
 
-const { startFaceDetection } = require('./vision/face-detector');
+const { startDetection, stopDetection } = require('./vision/detector');
 const { httpLogger, logger } = require('./util/loggers');
-const { config } = require('../common/config');
+
+const { config } = require('./config');
+const { version } = require('../package.json');
 
 const app = express();
 
@@ -21,44 +24,58 @@ socket.on('connection', (client) => {
   logger.info('New client');
 });
 
-// Todo: replace with dev env
-if (config.env === 'dev' || config.env === 'development') {
-  const webpack = require('webpack'); // eslint-disable-line
+function build() {
   const wpConfig = require('../webpack.config'); // eslint-disable-line
   wpConfig.watch = true;
   wpConfig.watchOptions = {
     aggregateTimeout: 500,
     poll: 500,
   };
+  const webpack = require('webpack'); // eslint-disable-line
 
-  webpack(wpConfig, (err, stats) => {
-    if (err) {
-      logger.error(`Webpack build error: ${err.stack || err}`);
-    } else {
-      logger.info('Rebuilt bundles.');
-      const statsInfo = stats.toJson();
-      if (stats.hasErrors()) {
-        logger.error(`Webpack build errors: ${statsInfo.errors}`);
+  return new Promise((resolve, reject) => {
+    webpack(wpConfig, (err, stats) => {
+      if (err) {
+        logger.error(`Webpack build error: ${err.stack || err}`);
+        reject(err);
+      } else {
+        logger.info(`Rebuilt bundles at ${(new Date()).getHours()}:${(new Date()).getMinutes()}:${(new Date()).getSeconds()}`);
+        const statsInfo = stats.toJson();
+        if (stats.hasErrors()) {
+          logger.error(`Webpack build errors: ${statsInfo.errors}`);
+        }
+        if (stats.hasWarnings()) {
+          logger.error(`Webpack build warnings: ${statsInfo.warnings}`);
+        }
+        logger.info(`Build took: ${statsInfo.time}ms`);
+
+        resolve();
       }
-      if (stats.hasWarnings()) {
-        logger.error(`Webpack build warnings: ${statsInfo.warnings}`);
-      }
-      logger.info(`Build took: ${statsInfo.time}ms`);
-    }
+    });
   });
 }
 
-async function start() {
+
+async function start(args) {
   logger.log('Starting server.');
 
-  const detection$ = startFaceDetection();
+  if (config.env === 'dev' || config.env === 'development') {
+    logger.info('Building...');
+    await build();
+  }
 
-  detection$.subscribe((faces) => {
-    logger.log(faces);
-    socket.emit('vision', faces);
-  }, (err) => {
-    logger.error(err);
-  });
+  if (args.cv) {
+    logger.log('Starting vision detection.');
+    const detection$ = startDetection();
+
+    detection$.subscribe((objects) => {
+      logger.log(objects);
+      socket.emit('vision', objects);
+    }, (err) => {
+      logger.error(err);
+    });
+  }
+
   return server.listen(config.sockets.port, () => {
     logger.info(`Listening on port: ${config.sockets.port}`);
   });
@@ -66,9 +83,16 @@ async function start() {
 
 async function stop() {
   logger.log('Stoping server.');
+  stopDetection();
   return server.close();
 }
 
-start().then(() => {
+
+program.version(version)
+  .option('--no-cv', 'No CV detection')
+  .parse(process.argv);
+
+(async () => {
+  await start(program);
   logger.log('Server running.');
-});
+})();

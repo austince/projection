@@ -6,6 +6,7 @@ import splitRect from '../lib/shapes/split-rect';
 import VisionClient from '../lib/sockets/VisionClient';
 
 export default function backSketch(p, elem) {
+  let white;
   let colfax;
   let clearBg = true;
   let drawBgRects = true;
@@ -14,24 +15,12 @@ export default function backSketch(p, elem) {
 
   p.preload = () => {
     colfax = p.loadFont('ColfaxWebThinSub.otf');
-    visionClient.connect();
-    visionClient.faceCords$.subscribe((coords) => {
-      if (coords.length === 0) return;
-
-      const {
-        width, height,
-      } = p;
-
-      const [faceCoords] = coords;
-      const {
-        x, y, camWidth, camHeight,
-      } = faceCoords;
-      lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
-    });
   };
 
   p.setup = () => {
     p.createCanvas(elem.offsetWidth, elem.offsetHeight);
+    p.colorMode(p.HSB);
+    white = p.color(255);
     p.background(255, 0, 0);
     // this.p.fill(0);
     // this.p.rect(20 * (Math.random() + 1) * 10, 20 * (Math.random() + 1) * 10, 20, 20);
@@ -40,7 +29,7 @@ export default function backSketch(p, elem) {
     p.noCursor();
 
     p.background(p.color(255));
-    p.textFont(colfax);
+    // p.textFont(colfax);
 
     console.log(
       'USAGE:',
@@ -48,7 +37,27 @@ export default function backSketch(p, elem) {
       'z - toggle background rectangle drawing \n',
       's - save an image!',
     );
+
+    // Todo: change to individual elem mappings?
+    window.addEventListener('mappingresized', p.mappingResized);
+
     lastCoords = { x: p.width / 2, y: p.height / 2 };
+
+    visionClient.connect();
+    visionClient.faceCords$.subscribe((objects) => {
+      if (objects.length === 0) return;
+
+      const {
+        width, height,
+      } = p;
+
+      const {
+        params: {
+          x, y, camWidth, camHeight,
+        },
+      } = objects[0];
+      lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
+    });
   };
 
   p.draw = () => {
@@ -58,7 +67,7 @@ export default function backSketch(p, elem) {
 
     if (clearBg) {
       p.clear();
-      p.background(p.color(255));
+      p.background(white);
     }
 
     if (drawBgRects) {
@@ -68,9 +77,7 @@ export default function backSketch(p, elem) {
 
     for (let i = 150; i < 200; i += 10) {
       for (let j = 150; j < 200; j += 10) {
-        squarePathCircles(p, lastCoords.x - i, lastCoords.y - j, i, 10);
-        squarePathCircles(p, lastCoords.x + i, lastCoords.y - j, i, 10);
-        squarePathCircles(p, lastCoords.x + i, lastCoords.y + j, i, 10);
+        // squarePathCircles(p, lastCoords.x + i, lastCoords.y + j, i, 10);
       }
     }
 
@@ -90,8 +97,18 @@ export default function backSketch(p, elem) {
     }
   };
 
-  p.windowResized = () => {
+  function resizeSketch() {
     console.log(`Resizing back canvas to be ${elem.offsetWidth} x ${elem.offsetHeight}`);
     p.resizeCanvas(elem.offsetWidth, elem.offsetHeight);
+  }
+
+  p.windowResized = () => {
+    console.log('Window was resized');
+    resizeSketch();
+  };
+
+  p.mappingResized = () => {
+    console.log('Mapping was resized');
+    resizeSketch();
   };
 }

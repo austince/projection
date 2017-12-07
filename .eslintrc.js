@@ -20,5 +20,6 @@ module.exports = {
     "import/prefer-default-export": 1,
     "max-len": [1, 150],
     "no-plusplus": 0,
+    "no-mixed-operators": 1,
   }
 };

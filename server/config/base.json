@@ -6,7 +6,6 @@
   "logs": {
     "accessFilename": "access.log",
     "errorFilename": "errors.log",
-    "databaseFilename": "db.log",
     "consoleFilename": "console.log"
   }
 }

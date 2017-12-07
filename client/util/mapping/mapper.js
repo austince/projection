@@ -1,11 +1,6 @@
 // import Maptastic from 'maptastic';
 import Maptastic from 'maptastic/src/maptastic';
 
-import BaseLayout from './layout.json';
-
-const BASE_WIDTH = 1920;
-const BASE_HEIGHT = 1080;
-
 export default class Mapper {
   constructor(...ids) {
     const config = {
@@ -17,7 +12,6 @@ export default class Mapper {
       layers: ids,
     };
     this.map = Maptastic(config);
-    this.setLayouts();
   }
 
   resize() {
@@ -26,6 +20,8 @@ export default class Mapper {
 
   layoutsChanged() {
     console.log('layouts changed');
+    const event = new CustomEvent('mappingresized');
+    window.dispatchEvent(event);
   }
 
   getLayouts() {
@@ -33,7 +29,7 @@ export default class Mapper {
   }
 
   setLayouts() {
-    this.map.setLayout(BaseLayout);
+    // this.map.setLayout(BaseLayout);
     // this.map.setLayout(this.getLayouts(BASE_WIDTH, BASE_HEIGHT));
   }
 }

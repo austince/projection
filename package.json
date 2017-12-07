@@ -5,8 +5,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
-    "start": "node server",
-    "clean": "rimraf dist",
+    "start": "cross-env NODE_ENV=production node --max-old-space-size=4096 server/index.js",
+    "start:dev": "cross-env NODE_ENV=dev node --max-old-space-size=4096 server/index.js",
+    "clean": "rimraf dist && rimraf server/logs",
     "build": "webpack",
     "lint": "eslint ./server && eslint ./client",
     "lint:fix": "eslint ./server --fix && eslint ./client --fix",
@@ -17,6 +18,8 @@
   "dependencies": {
     "@std/esm": "^0.17.3",
     "babel-polyfill": "^6.26.0",
+    "commander": "^2.12.2",
+    "cross-env": "^5.1.1",
     "express": "^4.16.2",
     "express-winston": "^2.4.0",
     "lodash": "^4.17.4",
@@ -30,6 +33,7 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
+    "@types/commander": "^2.12.2",
     "@types/express": "^4.0.39",
     "@types/socket.io": "^1.4.31",
     "@types/socket.io-client": "^1.4.32",

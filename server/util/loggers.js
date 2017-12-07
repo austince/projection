@@ -5,7 +5,7 @@
 const winston = require('winston');
 const expressWinston = require('express-winston');
 const fs = require('fs');
-const { config } = require('../../common/config');
+const { config } = require('../config');
 // import config from '../../common/config';
 
 let httpLogger;

@@ -10,19 +10,21 @@ import p5 from 'p5';
 import 'p5/lib/addons/p5.sound';
 import 'p5/lib/addons/p5.dom';
 
-import Mapper from './util/mapping/mapper';
+import Mapper from './util/mapper';
 import { bootstrap } from './util/bootstrap-sketch';
-import backSketch from './back';
-import floorSketch from './floor';
+import pastelSketch from './pastel';
+import xx3dSketch from './xx_3d';
+import arcLineSketch from './arc-lines';
 import './app-style.scss';
 
 const app = document.getElementById('app');
-let floorDisplay;
-let backDisplay;
-
+let floorDisplayElem;
+let wallDisplayElem;
+let floorApp;
+let wallApp;
 
 function setMap() {
-  const mapper = new Mapper(backDisplay, floorDisplay);
+  const mapper = new Mapper(wallDisplayElem, floorDisplayElem);
   mapper.setLayouts();
   console.log(mapper);
   window.addEventListener('resize', mapper.resize.bind(mapper));
@@ -31,34 +33,34 @@ function setMap() {
 
 
 function setup() {
-  const width = window.innerWidth;
-  const height = window.innerHeight / 2;
+  wallDisplayElem = document.createElement('div');
+  wallDisplayElem.setAttribute('id', 'back-display');
+  wallDisplayElem.style.height = `500px`;
+  wallDisplayElem.style.width = `500px`;
 
-  backDisplay = document.createElement('div');
-  backDisplay.setAttribute('id', 'back-display');
-  // backDisplay.style.height = `${height}px`;
-  // backDisplay.style.width = `${width}px`;
-  backDisplay.style.height = `500px`;
-  backDisplay.style.width = `500px`;
+  floorDisplayElem = document.createElement('div');
+  floorDisplayElem.setAttribute('id', 'floor-display');
+  floorDisplayElem.style.height = `500px`;
+  floorDisplayElem.style.width = `500px`;
 
-  floorDisplay = document.createElement('div');
-  floorDisplay.setAttribute('id', 'floor-display');
-  // floorDisplay.style.height = `${height}px`;
-  // floorDisplay.style.width = `${width}px`;
-  floorDisplay.style.height = `500px`;
-  floorDisplay.style.width = `500px`;
-
-  app.appendChild(backDisplay);
-  app.appendChild(floorDisplay);
+  app.appendChild(wallDisplayElem);
+  app.appendChild(floorDisplayElem);
 
   setMap();
 }
 
+function swapSketch(app, swapSketch, elem, delay=1000) {
+  setTimeout(() => {
+    app.remove();
+    app = new p5(bootstrap(swapSketch, elem), elem);
+  }, delay);
+}
+
 
 function start() {
-  const backDisplayApp = new p5(bootstrap(backSketch, backDisplay), backDisplay);
-  const floorDisplayApp = new p5(bootstrap(floorSketch, floorDisplay), floorDisplay);
-
+  wallApp = new p5(bootstrap(pastelSketch, wallDisplayElem), wallDisplayElem);
+  floorApp = new p5(bootstrap(xx3dSketch, floorDisplayElem), floorDisplayElem);
+  swapSketch(wallApp, arcLineSketch, wallDisplayElem);
   console.log('Started!');
 }
 

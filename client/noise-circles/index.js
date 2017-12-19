@@ -21,24 +21,6 @@ function colorPixel(p, x, y, color) {
   }
 }
 
-// function colorPixelGray(p, x, y, grayVal, area = 1) {
-//   const density = p.pixelDensity();
-//   const bounds = density * area;
-//   const denseWidth = (p.width * density);
-//   const denseY = (y * density);
-//   const denseX = (x * density);
-//   for (let i = (-bounds) + 1; i < bounds; i++) {
-//     for (let j = (-bounds) + 1; j < bounds; j++) {
-//       // loop over
-//       const idx = (4 * ((denseY + j) * denseWidth)) + (denseX + i);
-//       p.pixels[idx] = grayVal;
-//       p.pixels[idx + 1] = grayVal;
-//       p.pixels[idx + 2] = grayVal;
-//       p.pixels[idx + 3] = 1;
-//     }
-//   }
-// }
-
 function colorPixelGray(p, x, y, grayVal, area = 1) {
   const density = p.pixelDensity();
   const bounds = density * area;
@@ -130,7 +112,7 @@ export default function floorSketch(p, elem) {
         };
         // Todo: make this a gradual change
         // Todo: make this the difference to orig center
-        circle.setCenter(lastCoords.x + offset.x, lastCoords.y + offset.y);
+        circle.setCenter(lastCoords.x + offset.x, p.height / 2 + offset.y);
       });
     });
 

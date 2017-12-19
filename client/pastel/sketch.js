@@ -44,7 +44,7 @@ export default function backSketch(p, elem) {
     lastCoords = { x: p.width / 2, y: p.height / 2 };
 
     visionClient.connect();
-    visionClient.faceCords$.subscribe((objects) => {
+    visionClient.bodyCords$.subscribe((objects) => {
       if (objects.length === 0) return;
 
       const {

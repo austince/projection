@@ -14,7 +14,7 @@ export default function spinningCircles(p, x, y, dist, size) {
 
   p.push();
   p.translate(x, y);
-  p.rotate(p.radians(p.map(p.millis(), 0, 999, 0, 359)));
+  p.rotate(p.radians(p.map(p.millis(), 0, 999, 359, 0)));
   p.fill(c);
   p.ellipse(-dist, -dist, size, size);
   p.ellipse(dist, dist, size, size);

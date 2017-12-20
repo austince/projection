@@ -1,16 +1,14 @@
 import './back-style.scss';
 
-import squarePathCircles from '../lib/shapes/square-path-circles';
-import spinningCircles from '../lib/shapes/spinning-circles';
-import splitRect from '../lib/shapes/split-rect';
-import VisionClient from '../lib/sockets/VisionClient';
+import squarePathCircles from './square-path-circles';
+import spinningCircles from './spinning-circles';
+import splitRect from './split-rect';
 
 export default function backSketch(p, elem) {
   let white;
   let colfax;
   let clearBg = true;
   let drawBgRects = true;
-  const visionClient = new VisionClient();
   let lastCoords;
 
   p.preload = () => {
@@ -31,33 +29,7 @@ export default function backSketch(p, elem) {
     p.background(p.color(255));
     // p.textFont(colfax);
 
-    console.log(
-      'USAGE:',
-      'c - toggle background clearing \n',
-      'z - toggle background rectangle drawing \n',
-      's - save an image!',
-    );
-
-    // Todo: change to individual elem mappings?
-    window.addEventListener('mappingresized', p.mappingResized);
-
     lastCoords = { x: p.width / 2, y: p.height / 2 };
-
-    visionClient.connect();
-    visionClient.bodyCords$.subscribe((objects) => {
-      if (objects.length === 0) return;
-
-      const {
-        width, height,
-      } = p;
-
-      const {
-        params: {
-          x, y, camWidth, camHeight,
-        },
-      } = objects[0];
-      lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
-    });
   };
 
   p.draw = () => {

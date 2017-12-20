@@ -12,8 +12,9 @@ const isProd = ENV === 'production' || ENV === 'prod';
 
 module.exports = {
   entry: {
-    app: path.join(__dirname, './client/index.js'),
-    polyfills: ['babel-polyfill'],
+    // polyfills: ['babel-polyfill'],
+    // polyfills must be first for async/await etc.
+    app: ['babel-polyfill', path.join(__dirname, './client/index.js')],
   },
 
   context: __dirname,

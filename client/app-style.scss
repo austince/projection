@@ -10,13 +10,23 @@ body,
   background: $black;
 }
 
+.display {
+  height: 500px;
+  width: 500px;
+}
+
 #back-display {
   //height: 50%;
   //width: 100%;
-  background: blue;
+  background: $black;
 }
 
-#floor-display {
+#back-display canvas {
+  position: absolute;
+  transition: 5s opacity;
+}
+
+.floor-display {
   //height: 50%;
   //width: 100%;
   background: white;

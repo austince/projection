@@ -1,12 +1,10 @@
-import './floor-style.scss';
-
 import VisionClient from '../lib/sockets/VisionClient';
 import NoiseCircle from './noise-circle';
 
 const detail = 0.6; // amount of detail in the noise (0-1)
-const increment = 0.002; // how quickly to move through noise (0-1)
+const increment = 0.2; // how quickly to move through noise (0-1)
 
-// Todo: Make these into mixins for the p p5 object
+// Todo: Make these work
 function colorPixel(p, x, y, color) {
   const density = p.pixelDensity();
   for (let i = 0; i < density; i++) {
@@ -55,17 +53,15 @@ function makeNoise(p, step = 3, area = 1) {
       // colorPixel(p, x, y, p.color(gray));
       // colorPixelGray(p, x, y, gray, area);
       // colorPixelGray(p, x, y, gray, 1);
-      // Todo: make the efficient array indexing work
+      // Todo: make the efficient array above indexing work
       if (area === 1) {
         p.set(x, y, gray);
-      } else if (x > area && y > area && x + area < widthD && y + area < heightD) {
+      } else {
         for (let aX = x - area; aX < x + area; aX++) {
           for (let aY = y - area; aY < y + area; aY++) {
             p.set(aX, aY, gray);
           }
         }
-      } else {
-        p.set(x, y, gray);
       }
     }
   }
@@ -74,7 +70,7 @@ function makeNoise(p, step = 3, area = 1) {
 
 
 export default function floorSketch(p, elem) {
-  let colfax;
+  let noiseGraphics;
   let white;
   const visionClient = new VisionClient();
   let lastCoords;
@@ -87,7 +83,6 @@ export default function floorSketch(p, elem) {
   let noiseyCircles = [];
 
   p.preload = () => {
-    colfax = p.loadFont('ColfaxWebThinSub.otf');
 
     visionClient.connect();
     visionClient.bodyCords$.subscribe((objects) => {
@@ -122,16 +117,20 @@ export default function floorSketch(p, elem) {
   p.setup = () => {
     // all drawing functions must be referenced through this.p obj
     p.createCanvas(elem.offsetWidth, elem.offsetHeight);
-    white = p.color(255);
-    p.background(200);
-    p.textFont(colfax);
-    p.textSize(36);
+
+    // Render noise in an offscreen buffer
+    noiseGraphics = p.createGraphics(p.width, p.height);
 
     // first adjusts overall variety
     // Lower --> less
     // second adjusts local variety
     // 0 -> 1
     p.noiseDetail(8, detail);
+    // makeNoise(noiseGraphics, 1, 1);
+    makeNoise(noiseGraphics, 2, 1);
+
+    white = p.color(255);
+    p.background(200);
 
     cX = p.width / 2;
     cY = p.height / 2;
@@ -144,23 +143,10 @@ export default function floorSketch(p, elem) {
       const ang = p.map(p.random(1), 0, 1, 0, 359);
       return new NoiseCircle(p, cX + offset.x, cY + offset.y, rad, 30, ang);
     });
-
-    window.addEventListener('mappingresized', resize);
   };
 
-  let l = new Date();
   p.draw = () => {
-    const {
-      width, height,
-    } = p;
-
-    let c = new Date();
-    console.log('drawing' + (c - l));
-    p.background(0);
-    p.noiseDetail(8, 0.6);
-    // makeNoise(p, 10, 4);
-    makeNoise(p, 6, 2);
-    // makeNoise(p, 4, 2);
+    p.image(noiseGraphics, 0, 0);
 
     p.noFill();
     p.stroke(white);
@@ -173,18 +159,11 @@ export default function floorSketch(p, elem) {
     });
 
     timeOffset += timeIncrement;
-    l = c;
   };
 
   p.keyTyped = () => {
 
   };
-
-  function resize() {
-    console.log(`Resizing back canvas to be ${elem.offsetWidth} x ${elem.offsetHeight}`);
-    // p.resizeCanvas(elem.offsetWidth, elem.offsetHeight);
-    p.resizeCanvas(elem.offsetWidth, elem.offsetHeight);
-  }
 
   p.windowResized = () => {
     console.log(`Resizing floor canvas to be ${elem.offsetWidth} x ${elem.offsetHeight}`);

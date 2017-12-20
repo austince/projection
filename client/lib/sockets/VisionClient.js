@@ -7,7 +7,7 @@ import { Face, Body } from '../../../common/models';
 
 // import { sockets } from '../../../common/config';
 
-export default class Client {
+export class VisionClient {
   constructor() {
     this.visionObjs$ = new Subject();
     this.faceCords$ = this.visionObjs$

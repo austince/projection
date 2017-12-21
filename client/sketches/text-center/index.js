@@ -37,7 +37,7 @@ export default function sketch(p, elem) {
   let colfax;
   let bgColor;
   let textColor;
-  const stopTimeMillis = 1.5 * 60 * 1000;
+  const stopTimeMillis = 2.5 * 60 * 1000; // millis before the last text is shown
 
   // Could be a generator function?
   let floorIndex = 0;

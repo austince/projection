@@ -20,6 +20,7 @@ async function readFaces(im) {
     // cv.FACE_CASCADE
     im.detectObject(path.join(dataPath, '/haarcascade_frontalface_alt2.xml'), {}, (faceErr, faces) => {
       if (faceErr) reject(faceErr);
+      if (!faces || typeof faces === 'undefined') resolve([]);
 
       const allFaces = faces.map(params => {
         const {
@@ -35,10 +36,11 @@ async function readFaces(im) {
           camHeight,
         });
 
-        logger.info('Found a face!', face);
+        // logger.info('Found a face!', face);
         return face;
       });
 
+      im.release(); // clear the memory
       resolve(allFaces);
     });
   });
@@ -50,6 +52,7 @@ async function readBodies(im) {
     // path.join(dataPath, '/haarcascade_frontalface_alt2.xml')
     im.detectObject(cv.FULLBODY_CASCADE, {}, (bodyErr, bodies) => {
       if (bodyErr) reject(bodyErr);
+      if (!bodies || typeof bodies === 'undefined') resolve([]);
 
       const allBodies = bodies.map((params) => {
         const {
@@ -69,6 +72,7 @@ async function readBodies(im) {
         return body;
       });
 
+      im.release(); // clear the memory
       resolve(allBodies);
     });
   });
@@ -76,7 +80,8 @@ async function readBodies(im) {
 
 async function read() {
   const im = await getImage();
-  readFaces(im).then(faces => faces$.next(new VisionObjectSet(Face.TYPE, faces))).catch(err => faces$.error(err));
+  // should make a copy of the image
+  // readFaces(im).then(faces => faces$.next(new VisionObjectSet(Face.TYPE, faces))).catch(err => faces$.error(err));
   readBodies(im).then(bodies => bodies$.next(new VisionObjectSet(Body.TYPE, bodies))).catch(err => bodies$.error(err));
 }
 

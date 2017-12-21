@@ -12,24 +12,30 @@ import p5 from 'p5';
 
 import Mapper from './util/mapper';
 import { bootstrap } from './util/bootstrap-sketch';
-import pastelSketch from './pastel';
-import xx3dSketch from './xx_3d';
-import arcLineSketch from './arc-lines';
-import noiseSketch from './noise-circles';
-import colorBundlesSketch from './color-bundles';
-import textCenterSketch from './text-center';
-import textColumnSketch from './text-column';
+import pastelSketch from './sketches/pastel';
+import xx3dSketch from './sketches/xx_3d';
+import arcLineSketch from './sketches/arc-lines';
+import noiseSketch from './sketches/noise-circles';
+import colorBundlesSketch from './sketches/color-bundles';
+import textCenterSketch from './sketches/text-center';
+import textColumnSketch from './sketches/text-column';
 import { VisionClient } from './lib/sockets/VisionClient';
 
 // Base Styles
 import './app-style.scss';
 
-const app = document.getElementById('app');
+const appElem = document.getElementById('app');
 let floorDisplayElem;
 let wallDisplayElem;
 let floorApp;
 let wallApp;
-let wallTimeoutId = -1;
+let wallTimeoutId = null;
+const wallSwitchInterval =  2 * 60 * 1000; // two minutes
+const playTimeBeforeSwitch = .5 * 60 * 1000; // 30 seconds before switching
+const restartTimeAfterLeaving = 10 * 1000; // how long before the thing is restarted
+const bodyLegitInterval = 500; // how many seconds for each body detection to count
+const floorSketch = xx3dSketch;
+const startingWallSketch = pastelSketch;
 const wallSketches = [
   arcLineSketch,
   colorBundlesSketch,
@@ -38,6 +44,60 @@ const wallSketches = [
 ];
 let cvClient = new VisionClient();
 
+function personWatcher() {
+  // Look for a body, let them play a little bit, then hit them with the text
+// Then wait for them to leave and restart
+  let textSwitchId = null;
+  let lastSeenDate = null;
+  let doneSwitch = false;
+  cvClient.bodyCords$.subscribe((objects) => {
+    if (objects.length === 0) {
+      // if they've been gone long enough, let's restart the sketches
+      const now = new Date();
+      if ((lastSeenDate !== null) && now.getTime() - lastSeenDate.getTime() > restartTimeAfterLeaving) {
+        // Reset text switching
+        console.log(now - lastSeenDate);
+        clearTimeout(textSwitchId);
+        textSwitchId = null;
+
+        floorApp = swapSketch(floorApp, floorSketch, floorDisplayElem);
+
+        wallApp = swapSketch(wallApp, startingWallSketch, wallDisplayElem);
+        // start the wall swapper again
+        wallSwap(wallApp, wallDisplayElem, wallSketches);
+        lastSeenDate = null;
+        doneSwitch = false;
+        console.log("They've gone.");
+      } else if (!doneSwitch && lastSeenDate !== null && now.getTime() - lastSeenDate.getTime() > bodyLegitInterval)  {
+        clearTimeout(textSwitchId);
+        textSwitchId = null;
+        lastSeenDate = null;
+        console.log(now - lastSeenDate);
+        console.log("They're illegitimate.");
+      }
+
+    } else {
+      lastSeenDate = new Date();
+
+      if (textSwitchId !== null) {
+        // already found em
+        return;
+      }
+      // we have person
+      console.log("They've arrived.");
+
+      textSwitchId = setTimeout(() => {
+        doneSwitch = true;
+        console.log("Switched ya.");
+        clearTimeout(wallTimeoutId); // shut off the wall swapping
+        wallApp = swapSketch(wallApp, textCenterSketch, wallDisplayElem);
+        floorApp = swapSketch(floorApp, textColumnSketch, floorDisplayElem);
+      }, playTimeBeforeSwitch);
+    }
+  });
+}
+
+
 function setMap() {
   const mapper = new Mapper(wallDisplayElem, floorDisplayElem);
   mapper.setLayouts();
@@ -45,7 +105,6 @@ function setMap() {
   window.addEventListener('resize', mapper.resize.bind(mapper));
   console.log('Done setup!');
 }
-
 
 function setup() {
   wallDisplayElem = document.createElement('div');
@@ -56,19 +115,21 @@ function setup() {
   floorDisplayElem.setAttribute('class', 'floor-display display');
   floorDisplayElem.setAttribute('id', 'floor-display');
 
-  app.appendChild(wallDisplayElem);
-  app.appendChild(floorDisplayElem);
+  appElem.appendChild(wallDisplayElem);
+  appElem.appendChild(floorDisplayElem);
 
   setMap();
 }
 
 function start() {
   setup();
+  cvClient.connect();
 
-  wallApp = new p5(bootstrap(noiseSketch, wallDisplayElem), wallDisplayElem);
+  wallApp = new p5(bootstrap(startingWallSketch, wallDisplayElem), wallDisplayElem);
   floorApp = new p5(bootstrap(xx3dSketch, floorDisplayElem), floorDisplayElem);
   wallSwap(wallApp, wallDisplayElem, wallSketches);
   console.log('Started!');
+  personWatcher();
 }
 
 /**
@@ -95,7 +156,7 @@ function swapSketch(app, swapSketch, elem) {
   return new p5(bootstrap(swapSketch, elem), elem);
 }
 
-function wallSwap(app, elem, sketchList, delay = 5000, fadeDelay = 2000, index = 0) {
+function wallSwap(app, elem, sketchList, delay = wallSwitchInterval, fadeDelay = 2000, index = 0) {
   // Trying to figure out how to fade them together
   // let nextApp;
   // setTimeout(async () => {
@@ -118,12 +179,12 @@ function wallSwap(app, elem, sketchList, delay = 5000, fadeDelay = 2000, index =
 }
 
 function restart() {
-  app.innerHTML = '';
+  appElem.innerHTML = '';
   start();
 }
 
 function stop() {
-  app.innerHTML = '';
+  appElem.innerHTML = '';
 }
 
 // Expose for debugging
@@ -134,27 +195,9 @@ window.setupApp = setup;
 window.mapApp = setMap;
 
 
-// visionClient.connect();
-// visionClient.bodyCords$.subscribe((objects) => {
-//   if (objects.length === 0) return;
-//
-//   const {
-//     width, height,
-//   } = p;
-//
-//   const {
-//     params: {
-//       x, y, camWidth, camHeight,
-//     },
-//   } = objects[0];
-//   lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
-// });
 
 
+// Start it up
 start();
 
-setTimeout(() => {
-  clearTimeout(wallTimeoutId);
-  swapSketch(wallApp, textCenterSketch, wallDisplayElem);
-  swapSketch(floorApp, textColumnSketch, floorDisplayElem);
-}, 2000);
+

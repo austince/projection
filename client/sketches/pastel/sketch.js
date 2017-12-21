@@ -6,20 +6,18 @@ import splitRect from './split-rect';
 
 export default function backSketch(p, elem) {
   let white;
-  let colfax;
   let clearBg = true;
   let drawBgRects = true;
   let lastCoords;
 
   p.preload = () => {
-    colfax = p.loadFont('ColfaxWebThinSub.otf');
   };
 
   p.setup = () => {
     p.createCanvas(elem.offsetWidth, elem.offsetHeight);
     p.colorMode(p.HSB);
     white = p.color(255);
-    p.background(255, 0, 0);
+    p.background(360, 0, 0);
     // this.p.fill(0);
     // this.p.rect(20 * (Math.random() + 1) * 10, 20 * (Math.random() + 1) * 10, 20, 20);
 
@@ -27,7 +25,6 @@ export default function backSketch(p, elem) {
     p.noCursor();
 
     p.background(p.color(255));
-    // p.textFont(colfax);
 
     lastCoords = { x: p.width / 2, y: p.height / 2 };
   };

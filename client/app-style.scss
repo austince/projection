@@ -26,8 +26,13 @@ body,
   transition: 5s opacity;
 }
 
-.floor-display {
+#floor-display {
   //height: 50%;
   //width: 100%;
   background: white;
+}
+
+
+#p5_loading {
+  display: none;
 }

@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=production node --max-old-space-size=8192 server/index.js",
-    "start:dev": "cross-env NODE_ENV=dev node --max-old-space-size=4096 server/index.js",
+    "start:dev": "cross-env NODE_ENV=dev node --max-old-space-size=8192 server/index.js",
     "start:dev:client": "cross-env NODE_ENV=dev webpack-dev-server",
     "clean": "rimraf dist && rimraf server/logs",
     "build": "webpack",

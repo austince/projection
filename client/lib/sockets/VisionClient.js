@@ -23,6 +23,8 @@ export class VisionClient {
     this.socket = io.connect('localhost:8080');
     this.socket.on('vision', (objSet) => {
       this.visionObjs$.next(objSet);
+      this.faceCords$.next(objSet);
+      this.bodyCords$.next(objSet);
     });
   }
 }

@@ -24,7 +24,7 @@ socket.on('connection', (client) => {
   logger.info('New client');
 });
 
-function build() {
+function buildClient() {
   const wpConfig = require('../webpack.config'); // eslint-disable-line
   wpConfig.watch = true;
   wpConfig.watchOptions = {
@@ -61,7 +61,7 @@ async function start(args) {
 
   if (config.env === 'dev' || config.env === 'development') {
     logger.info('Building...');
-    await build();
+    await buildClient();
   }
 
   if (args.cv) {

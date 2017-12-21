@@ -1,10 +1,9 @@
-import VisionClient from '../lib/sockets/VisionClient';
 import NoiseCircle from './noise-circle';
 
 const detail = 0.6; // amount of detail in the noise (0-1)
 const increment = 0.2; // how quickly to move through noise (0-1)
 
-// Todo: Make these work
+// Todo: Make these work and move to closure?
 function colorPixel(p, x, y, color) {
   const density = p.pixelDensity();
   for (let i = 0; i < density; i++) {
@@ -69,10 +68,10 @@ function makeNoise(p, step = 3, area = 1) {
 }
 
 
-export default function floorSketch(p, elem) {
+export default function sketch(p, elem) {
   let noiseGraphics;
   let white;
-  const visionClient = new VisionClient();
+  // const visionClient = new VisionClient();
   let lastCoords;
   let cX;
   let cY;
@@ -84,32 +83,32 @@ export default function floorSketch(p, elem) {
 
   p.preload = () => {
 
-    visionClient.connect();
-    visionClient.bodyCords$.subscribe((objects) => {
-      if (objects.length === 0) return;
-
-      const {
-        width, height,
-      } = p;
-
-      const {
-        params: {
-          x, y, camWidth, camHeight,
-        },
-      } = objects[0];
-      lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
-
-
-      noiseyCircles.forEach((circle) => {
-        const offset = {
-          x: p.random(-maxCircleOffset, maxCircleOffset),
-          y: p.random(-maxCircleOffset, maxCircleOffset),
-        };
-        // Todo: make this a gradual change
-        // Todo: make this the difference to orig center
-        circle.setCenter(lastCoords.x + offset.x, p.height / 2 + offset.y);
-      });
-    });
+    // visionClient.connect();
+    // visionClient.bodyCords$.subscribe((objects) => {
+    //   if (objects.length === 0) return;
+    //
+    //   const {
+    //     width, height,
+    //   } = p;
+    //
+    //   const {
+    //     params: {
+    //       x, y, camWidth, camHeight,
+    //     },
+    //   } = objects[0];
+    //   lastCoords = { x: (x / camWidth) * width, y: (y / camHeight) * height };
+    //
+    //
+    //   noiseyCircles.forEach((circle) => {
+    //     const offset = {
+    //       x: p.random(-maxCircleOffset, maxCircleOffset),
+    //       y: p.random(-maxCircleOffset, maxCircleOffset),
+    //     };
+    //     // Todo: make this a gradual change
+    //     // Todo: make this the difference to orig center
+    //     circle.setCenter(lastCoords.x + offset.x, p.height / 2 + offset.y);
+    //   });
+    // });
 
     lastCoords = { x: p.width / 2, y: p.height / 2 };
   };

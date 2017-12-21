@@ -37,7 +37,12 @@ export default function sketch(p, elem) {
   let colfax;
   let bgColor;
   let textColor;
-  const stopTimeMillis = 2.5 * 60 * 1000; // millis before the last text is shown
+  const stopTimeMillis = 1 * 60 * 1000; // millis before the last text is shown
+  const baseRate = 0.1;
+  const maxRate = 4.5;
+  const rateGrowth = 0.1;
+  let frameRate = baseRate;
+  let lastMillis = 0;
 
   // Could be a generator function?
   let floorIndex = 0;
@@ -54,10 +59,7 @@ export default function sketch(p, elem) {
     colfax = p.loadFont('Colfax-Bold.otf');
   };
 
-  const baseRate = 0.1;
-  const maxRate = 3.5;
-  const rateGrowth = 0.1;
-  let frameRate = baseRate;
+
   p.setup = () => {
     p.createCanvas(elem.offsetWidth, elem.offsetHeight);
     p.textFont(colfax);
@@ -66,14 +68,15 @@ export default function sketch(p, elem) {
     bgColor = p.color(255);
     textColor = p.color(0);
     p.background(bgColor);
-
+    lastMillis = 0;
   };
 
   p.draw = () => {
     p.background(bgColor);
-
+    lastMillis = p.millis();
     if (p.millis() > stopTimeMillis) {
       showText(finalText);
+      lastMillis = 0;
       p.noLoop();
     } else {
       // Increase exponentially

@@ -30,10 +30,10 @@ let wallDisplayElem;
 let floorApp;
 let wallApp;
 let wallTimeoutId = null;
-const wallSwitchInterval =  2 * 60 * 1000; // two minutes
-const playTimeBeforeSwitch = .5 * 60 * 1000; // 30 seconds before switching
+const wallSwitchInterval =  1 * 60 * 1000; // one minute
+const playTimeBeforeSwitch = .25 * 60 * 1000; // before switching
 const restartTimeAfterLeaving = 10 * 1000; // how long before the thing is restarted
-const bodyLegitInterval = 500; // how many seconds for each body detection to count
+const bodyLegitInterval = .4 * 60 * 1000; // how many seconds for each body detection to count
 const floorSketch = xx3dSketch;
 const startingWallSketch = pastelSketch;
 const wallSketches = [
@@ -61,10 +61,10 @@ function personWatcher() {
         textSwitchId = null;
 
         floorApp = swapSketch(floorApp, floorSketch, floorDisplayElem);
-
-        wallApp = swapSketch(wallApp, startingWallSketch, wallDisplayElem);
+        const randSketchIndex = Math.floor(Math.random() * wallSketches.length);
+        wallApp = swapSketch(wallApp, wallSketches[randSketchIndex], wallDisplayElem);
         // start the wall swapper again
-        wallSwap(wallApp, wallDisplayElem, wallSketches);
+        wallSwap(wallApp, wallDisplayElem, wallSketches, randSketchIndex);
         lastSeenDate = null;
         doneSwitch = false;
         console.log("They've gone.");
@@ -156,7 +156,7 @@ function swapSketch(app, swapSketch, elem) {
   return new p5(bootstrap(swapSketch, elem), elem);
 }
 
-function wallSwap(app, elem, sketchList, delay = wallSwitchInterval, fadeDelay = 2000, index = 0) {
+function wallSwap(app, elem, sketchList, index = 0, delay = wallSwitchInterval, fadeDelay = 2000) {
   // Trying to figure out how to fade them together
   // let nextApp;
   // setTimeout(async () => {
@@ -174,7 +174,7 @@ function wallSwap(app, elem, sketchList, delay = wallSwitchInterval, fadeDelay =
     app.remove();
     let nextApp = swapSketch(app, sketchList[index], elem);
 
-    wallSwap(nextApp, elem, sketchList, delay, fadeDelay, (index + 1) % sketchList.length);
+    wallSwap(nextApp, elem, sketchList, (index + 1) % sketchList.length, delay, fadeDelay);
   }, delay);
 }
 

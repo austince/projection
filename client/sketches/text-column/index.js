@@ -98,7 +98,9 @@ export default function sketch(p, elem) {
 
   p.preload = () => {
     // colfax = p.loadFont('ColfaxWebThinSub.otf');
-    colfax = p.loadFont('Colfax-Bold.otf');
+    // colfax = p.loadFont('Colfax-Bold.otf');
+    colfax = p.loadFont('Colfax-Medium.otf');
+
   };
 
 

@@ -33,14 +33,14 @@ let wallTimeoutId = null;
 const wallSwitchInterval =  1 * 60 * 1000; // one minute
 const playTimeBeforeSwitch = .25 * 60 * 1000; // before switching
 const restartTimeAfterLeaving = 10 * 1000; // how long before the thing is restarted
-const bodyLegitInterval = .4 * 60 * 1000; // how many seconds for each body detection to count
+const bodyLegitInterval = .15 * 60 * 1000; // how many seconds for each body detection to count
 const floorSketch = xx3dSketch;
-const startingWallSketch = pastelSketch;
+const startingWallSketch = noiseSketch;
 const wallSketches = [
-  arcLineSketch,
   colorBundlesSketch,
-  noiseSketch,
-  pastelSketch
+  pastelSketch,
+  arcLineSketch,
+  noiseSketch
 ];
 let cvClient = new VisionClient();
 
@@ -57,11 +57,13 @@ function personWatcher() {
       if ((lastSeenDate !== null) && now.getTime() - lastSeenDate.getTime() > restartTimeAfterLeaving) {
         // Reset text switching
         console.log(now - lastSeenDate);
-        clearTimeout(textSwitchId);
+        console.log(restartTimeAfterLeaving);
+        if (textSwitchId !== null) clearTimeout(textSwitchId);
         textSwitchId = null;
 
         floorApp = swapSketch(floorApp, floorSketch, floorDisplayElem);
         const randSketchIndex = Math.floor(Math.random() * wallSketches.length);
+        if (wallTimeoutId !== null) clearTimeout(wallTimeoutId);
         wallApp = swapSketch(wallApp, wallSketches[randSketchIndex], wallDisplayElem);
         // start the wall swapper again
         wallSwap(wallApp, wallDisplayElem, wallSketches, randSketchIndex);
@@ -69,9 +71,12 @@ function personWatcher() {
         doneSwitch = false;
         console.log("They've gone.");
       } else if (!doneSwitch && lastSeenDate !== null && now.getTime() - lastSeenDate.getTime() > bodyLegitInterval)  {
-        clearTimeout(textSwitchId);
+        if (textSwitchId !== null) {
+          clearTimeout(textSwitchId);
+        }
         textSwitchId = null;
         lastSeenDate = null;
+        doneSwitch = false;
         console.log(now - lastSeenDate);
         console.log("They're illegitimate.");
       }

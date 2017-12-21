@@ -39,7 +39,7 @@ export default function sketch(p, elem) {
   let textColor;
   const stopTimeMillis = 1 * 60 * 1000; // millis before the last text is shown
   const baseRate = 0.1;
-  const maxRate = 4.5;
+  const maxRate = 3.5;
   const rateGrowth = 0.1;
   let frameRate = baseRate;
   let lastMillis = 0;
@@ -74,16 +74,16 @@ export default function sketch(p, elem) {
   p.draw = () => {
     p.background(bgColor);
     lastMillis = p.millis();
-    if (p.millis() > stopTimeMillis) {
-      showText(finalText);
-      lastMillis = 0;
-      p.noLoop();
-    } else {
+    // if (p.millis() > stopTimeMillis) {
+    //   showText(finalText);
+    //   lastMillis = 0;
+    //   p.noLoop();
+    // } else {
       // Increase exponentially
       frameRate = p.constrain(frameRate + rateGrowth, baseRate, maxRate);
       p.frameRate(frameRate);
       showText(floorText());
-    }
+    // }
   };
 
   p.keyTyped = () => {

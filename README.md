@@ -1,22 +1,19 @@
-# Final Project
+# projection
 
 
 ### Requirements  
-Linux:  
-* `libavahi-compat-libdnssd-dev`
+* Node > 8
+* OpenCV 2.4
 
-### Development Scripts
+### Running
 
 ```bash
 # run application in development mode
-yarn dev
+yarn start:dev
 
 # compile source code and create webpack output
-yarn compile
+yarn build
 
-# `yarn compile` & create build with electron-builder
-yarn dist
-
-# `yarn compile` & create unpacked build with electron-builder
-yarn dist:dir
+# run compiled code on port 8080
+yarn start
 ```

@@ -1,6 +1,9 @@
-# projection
+[![](./process-images/projection.png)](https://vimeo.com/248395998)
 
-[![](./process-images/projection.jpg)](https://vimeo.com/248395998)
+Interactive installation for [Creative Programming with Jeff Thompson](https://github.com/jeffThompson/CreativeProgramming1/).
+Everything is fun and color until reality makes an appearance. Watch the video 👆👆 for the gist of it.
+
+Made with p5.js, OpenCV, and many more.
 
 ### Requirements  
 * Node > 8

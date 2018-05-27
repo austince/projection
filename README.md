@@ -5,6 +5,26 @@ Everything is fun and color until reality makes an appearance. Watch the video ð
 
 Made with p5.js, OpenCV, and many more.
 
+## Process
+Some of the photos from the process of bringing this out of my head. More in [process-images](./process-images).
+
+<div align="center">
+<b>At home</b>
+<img src="./process-images/home-test.jpg" height="400">
+</div>  <br><br>
+
+<div align="center">
+<b>Floor</b>
+<img src="./process-images/floor.jpg" height="400">
+</div>  <br><br>
+
+<div align="center">
+<b>During development</b>
+<img src="./process-images/IMG_8073.MOV.jpg" height="400">
+</div>  
+
+## Dev
+
 ### Requirements  
 * Node > 8
 * OpenCV 2.4
